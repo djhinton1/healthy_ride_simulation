@@ -1,4 +1,3 @@
-from sim.assert_helper import assert_id
 from assert_helper import *
 
 class bike:
