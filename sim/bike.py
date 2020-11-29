@@ -1,6 +1,6 @@
 from .assert_helper import *
 
-class bike:
+class Bike:
     """
     Bike Class. For the purposes of the simulation, these are the things we need to know:
 
