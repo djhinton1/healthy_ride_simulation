@@ -36,7 +36,7 @@ def assert_bike_type(type):
     --------
     type: [str] Type of bike.
     """
-    if type not in ("electric", "namual"):
+    if type not in ("electric", "manual"):
         raise ValueError(f"{type} is not a valid bike type.")
 
 def assert_rider(rider):
