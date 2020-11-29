@@ -39,22 +39,22 @@ class bike:
         return self._bike_type
 
     @property
-    def get_rider(self):
+    def rider(self):
         return self._rider_type
 
     @property
-    def get_from_station(self):
+    def from_station(self):
         return self._from_station
 
 
-    # setting the rider type
-    def set_rider(self, rider_type):
+    @rider.setter
+    def rider(self, rider_type):
         assert_rider(rider_type)
         self._rider_type = rider_type
 
-    # setting the from station
-    def set_from_station(self, location_id):
-        assert_id(location_id)
-        self._from_station = location_id
+    @from_station.setter
+    def from_station(self, station_id):
+        assert_id(station_id)
+        self._from_station = station_id
 
 
