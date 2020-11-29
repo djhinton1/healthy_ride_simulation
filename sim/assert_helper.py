@@ -21,7 +21,7 @@ def assert_id(id):
 
     Params
     --------
-    id: [int] Number that must be type int.args
+    id: [int] Number that must be type int
     """
     if not isinstance(id, int):
         raise TypeError("id must be in int")
