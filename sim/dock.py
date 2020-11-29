@@ -1,7 +1,7 @@
 from .assert_helper import assert_charge, assert_id
 from .bike import Bike
 
-class dock:
+class Dock:
     """
     At each station, there is a dock to which a bike can connect. There are a certain number of docks per station. There are a few things that we will need to know:
 
