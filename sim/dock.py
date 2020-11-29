@@ -32,7 +32,7 @@ class Dock:
         self._station = station
 
         self._bike = None # assigned when bike docks
-        self._log = [None] # adapts as bikes are checked in
+        self._log = [] # adapts as bikes are checked in
 
     @property
     def id(self):
@@ -72,8 +72,8 @@ class Dock:
         
         if isinstance(self.bike, Bike):
             raise Exception("attempting to check a bike into a dock that is already occupied")
-
-        self.bike(bike)
+        
+        self.bike = bike
 
         self._log.append({
             'bike_id': self.bike.id,
@@ -94,11 +94,11 @@ class Dock:
         if not isinstance(self.bike, Bike):
             raise Exception("attempting to check out a bike that does not exist at the dock")
 
-        self.bike.rider(user_type)
-        self.bike.from_station(self.station)
+        self.bike.rider = user_type
+        self.bike.from_station = self.station
 
         bike = self.bike
-        self.bike(None)
+        self.bike = None
         return bike
 
 
