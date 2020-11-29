@@ -49,3 +49,14 @@ def assert_rider(rider):
     """
     if rider not in ("undergraduate", "graduate", "faculty"):
         raise ValueError(f"{rider} is not a valid bike rider.")
+
+def assert_charge(x):
+    """
+    Raises type error if x is not a boolean
+
+    Params
+    --------
+    x: [boolean] The dock has charging capibilities. t/f
+    """
+    if not isinstance(x, bool):
+        raise TypeError(f"{x} is not true/false.")
