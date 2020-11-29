@@ -1,3 +1,5 @@
+from sim.assert_helper import assert_id
+from .assert_helper import assert_greater_than_zero, assert_id
 
 class bike:
     """
@@ -18,8 +20,9 @@ class bike:
 
         bike_type: [manual | electric] the bike type. 
         """
-
+        assert_id(id)
         self._id = id
+
         self._bike_type = bike_type
         self._rider_type = None #assigned at checkout
 
