@@ -1,4 +1,4 @@
-from assert_helper import *
+from .assert_helper import *
 
 class bike:
     """
