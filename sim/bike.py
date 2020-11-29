@@ -1,5 +1,5 @@
 from sim.assert_helper import assert_id
-from .assert_helper import assert_greater_than_zero, assert_id
+from assert_helper import *
 
 class bike:
     """
@@ -23,8 +23,13 @@ class bike:
         assert_id(id)
         self._id = id
 
+        assert_bike_type(bike_type)
         self._bike_type = bike_type
-        self._rider_type = None #assigned at checkout
+
+
+        self._rider_type = None # assigned at checkout
+        self._from_station = None # assigned at checkout
+
 
     @property
     def id(self):
@@ -38,8 +43,19 @@ class bike:
     def get_rider(self):
         return self._rider_type
 
+    @property
+    def get_from_station(self):
+        return self._from_station
+
+
     # setting the rider type
     def set_rider(self, rider_type):
+        assert_rider(rider_type)
         self._rider_type = rider_type
+
+    # setting the from station
+    def set_from_station(self, location_id):
+        assert_id(location_id)
+        self._from_station = location_id
 
 
