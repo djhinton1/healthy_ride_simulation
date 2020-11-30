@@ -60,3 +60,38 @@ def assert_charge(x):
     """
     if not isinstance(x, bool):
         raise TypeError(f"{x} is not true/false.")
+
+def assert_location(loc):
+    """
+    Raises type error if loc is not an integer tuple
+
+    Params
+    --------
+    loc: [tuple] coordinates of the location
+    """
+    if not isinstance(loc, tuple):
+        raise TypeError(f"{loc} is not a tuple")
+
+def assert_status(stat):
+    """
+    Raises Type Error if the status is not "active" or "inactive"
+
+    Params
+    --------
+    stat: [str] Status of the station.
+    """
+    if stat not in ("active", "inactive"):
+        raise ValueError(f'{stat} is not a valid station status.')
+
+def assert_bikes(docks, bikes):
+    """
+    Raises value error if the number of bikes is greater than the number of docks at the station.
+
+    Params
+    --------
+    docks: [int > 0] Number of docks at the station.
+
+    bikes: [int > 0] Number of bikes at the station.
+    """
+    if bikes > docks:
+        raise ValueError("cannot have more bikes than docks")
