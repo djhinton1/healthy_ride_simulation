@@ -1,30 +1,59 @@
 
-class station:
+from .assert_helper import *
+from .dock import Dock
+from .bike import Bike
+
+
+class Station:
     """
     This class will control the behavior of the stations 
     """
 
-    def __init__(self, id, location, dock_count):
+    def __init__(self, id, location, dock_count, status, bikes, description):
         """
         Parameters
         ----------
         id: [int > 0] station number.
 
-        location: [tuple, ]
+        location: [tuple] contains map coordinates for the stations.
 
         dock_count: [int > 0] number of docks at the station.
+
+        status: [str] Station condition, used to assess effect of eliminating the station.
+
+        bikes: [int > 0] Number of bikes at the station.
+
+        description: [str] Description of the station.
         """
         
+        assert_id(id)
         self._id = id
-        self._location = location
-        self._dock_count = dock_count
-        self._available_docks = dock_count # to start, they all will be open until we assign bikes to the station.
 
-        # if the station possesses electric bike charging capibility, then the station type will be Electric, if the station possesses no charging capibility then the type will be manual. Right now, we will only be considering the station types that are manual. 
-        self._station_type = "Manual"
-        
-        # number of 
-        self._parked_bikes = [None]
+        assert_location(location)
+        self._location = location
+
+        assert_id(dock_count)
+        self._dock_count = dock_count
+        self._docks = [
+            Dock(
+                id = i, charge = False, station = self.id
+            )
+            for i in range(dock_count)
+        ]
+
+        assert_status(status)
+        self._status = status
+
+        assert_bikes(dock_count, bikes)
+        for i in range(bikes):
+            self.docks[i].bike = Bike(((self.id * 100) + i), "manual")
+
+        self._checkouts = [] # list of trips away from the station (station is origin)
+
+        self._checkins = [] # list of trips to the station (station is destination)
+
+        self._description = description
+    
     
     @property
     def id(self):
@@ -39,17 +68,67 @@ class station:
         return self._dock_count
 
     @property
-    def available_docks(self):
-        return self._available_docks
+    def docks(self):
+        return self._docks
 
-    # adding bikes to the station
-    def add_bike(self, bike):
-        if self._available_docks == 0:
-            print("there are not enough spaces at this station")
-        else:
-            self._parked_bikes.append(bike)
-            self._available_docks += -1
+    @property
+    def checkouts(self):
+        for dock in self.docks:
+            if not dock.log:
+                continue
 
+            for trip in dock.log:
+                if trip.get('event') == "check-out":
+                    self._checkouts.append(trip)
+
+        return self._checkouts
+
+    @property
+    def checkins(self):
+        for dock in self.docks:
+            if not dock.log:
+                continue
+
+            for trip in dock.log:
+                if trip.get('event') == "check-in":
+                    self._checkins.append(trip)
+                    
+        return self._checkins
+
+    @property
+    def status(self):
+        return self._status
+
+    @property
+    def bikes(self):
+        """
+        Returns
+        --------
+        Number of bikes currently at the station.
+        """
+        bikes = [1 if dock.bike else 0 for dock in self.docks]
+        return sum(bikes)
+
+    @property
+    def description(self):
+        return self._description
+
+    def take_bike(self, user):
+        if self.bikes == 0: # there are no bikes to take
+            return None
+        
+        for dock in self.docks:
+            if dock.bike:
+                return dock.check_out(user)
+
+    def dock_bike(self, bike):
+        if self.bikes == self.dock_count: # station is full
+            return None
+        
+        for dock in self.docks:
+            if not dock.bike:
+                dock.check_in(bike)
+                return 1
 
     
 
