@@ -76,6 +76,8 @@ class Dock:
         self.bike = bike
 
         self._log.append({
+            'event': 'check-in',
+            'dock_id': self.id,
             'bike_id': self.bike.id,
             'bike_type': self.bike.bike_type,
             'bike_rider': self.bike.rider,
@@ -93,9 +95,17 @@ class Dock:
 
         if not isinstance(self.bike, Bike):
             raise Exception("attempting to check out a bike that does not exist at the dock")
-
+        
         self.bike.rider = user_type
         self.bike.from_station = self.station
+
+        self._log.append({
+            'event': 'check-out',
+            'dock_id': self.id,
+            'bike_id': self.bike.id,
+            'bike_type': self.bike.bike_type,
+            'bike_rider': self.bike.rider,
+        })
 
         bike = self.bike
         self.bike = None
