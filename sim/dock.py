@@ -76,6 +76,7 @@ class Dock:
         self.bike = bike
 
         self._log.append({
+            'station_id': self.station,
             'event': 'check-in',
             'dock_id': self.id,
             'bike_id': self.bike.id,
@@ -100,11 +101,13 @@ class Dock:
         self.bike.from_station = self.station
 
         self._log.append({
+            'station_id': self.station,
             'event': 'check-out',
             'dock_id': self.id,
             'bike_id': self.bike.id,
             'bike_type': self.bike.bike_type,
             'bike_rider': self.bike.rider,
+            'from_station': 'n/a'
         })
 
         bike = self.bike
