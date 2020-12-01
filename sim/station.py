@@ -115,12 +115,15 @@ class Station:
 
     @property
     def log(self):
+        desc = {'station_desc': self.description}
         for dock in self.docks:
             if not dock.log:
                 continue
 
             for trip in dock.log:
-                self._log.append({'station_desc': self.description}.update(trip))
+                desc.update(trip)
+                self._log.append(desc)
+        return self._log
 
     @property
     def status(self):
