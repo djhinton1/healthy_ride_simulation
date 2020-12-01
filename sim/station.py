@@ -54,7 +54,11 @@ class Station:
 
         self._checkins = [] # list of trips to the station (station is destination)
 
+        self._log = [] # list of all activity at the station
+
         self._description = description
+
+        self._activity = None
     
     
     @property
@@ -68,6 +72,10 @@ class Station:
     @property
     def latitude(self):
         return self._latitude
+
+    @property
+    def activity(self):
+        return self._activity
     
     @property
     def location(self):
@@ -106,6 +114,15 @@ class Station:
         return self._checkins
 
     @property
+    def log(self):
+        for dock in self.docks:
+            if not dock.log:
+                continue
+
+            for trip in dock.log:
+                self._log.append(trip)
+
+    @property
     def status(self):
         return self._status
 
@@ -129,6 +146,7 @@ class Station:
         
         for dock in self.docks:
             if dock.bike:
+                self._activity = 1
                 return dock.check_out(user)
 
     def dock_bike(self, bike):
@@ -137,6 +155,7 @@ class Station:
         
         for dock in self.docks:
             if not dock.bike:
+                self._activity = 1
                 dock.check_in(bike)
                 return 1
 
