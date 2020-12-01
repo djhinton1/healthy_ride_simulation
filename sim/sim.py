@@ -17,7 +17,7 @@ class Simulation:
         # taking the stations from the excel file and turning them into Station objects for the simulation loaded with the docks and bikes as specificed in the excel file. 
 
         stations = {}
-        station_data = get_data(path,0)
+        station_data = get_data(path)
         for element in station_data:
             stations[int(element.get('station_id'))] = Station(
 
@@ -31,6 +31,10 @@ class Simulation:
 
             )
         
+        # need the station demand and the associated weights so that we can generate a weighted random selection as start location. 
+        # Has format [[stations],[weights]]
+        demand_weights = get_weights(path)
+        
 
 
 
@@ -42,7 +46,7 @@ class Simulation:
 
 # Helper Functions
 ###################################################
-def get_data(path, sheet):
+def get_data(path):
     """
     Reads in the excel file required to generate the stations. Also makes a map showing which stations are considered inactive.
 
@@ -55,8 +59,8 @@ def get_data(path, sheet):
     A list of dictionaries that each contain information from one row of the excel file. 
      """
     df = pd.DataFrame(columns=('longitude', 'latitude', 'status'))
-    workbook = xlrd.open_workbook(path, on_demand = True)
-    worksheet = workbook.sheet_by_index(sheet)
+    
+    worksheet = get_worksheet(path, 0)
     first_row = [] # The row where we stock the name of the column
     for col in range(worksheet.ncols):
         first_row.append( worksheet.cell_value(0,col) )
@@ -109,6 +113,19 @@ def get_data(path, sheet):
     mpld3.save_html(fig, 'active_stations.html')
 
     return data
+
+def get_worksheet(path, sheet):
+    workbook = xlrd.open_workbook(path, on_demand = True)
+    worksheet = workbook.sheet_by_index(sheet)
+    return worksheet
+
+def get_weights(path):
+    station_demand_weights = [[],[]]
+    demand_worksheet = get_worksheet(path, 1)
+    for row in range(1, demand_worksheet.nrows):
+        station_demand_weights[0].append(demand_worksheet.cell_value(row, 0))
+        station_demand_weights[1].append(demand_worksheet.cell_value(row, 2))
+    return station_demand_weights
         
 
 '''
