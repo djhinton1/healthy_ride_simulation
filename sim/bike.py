@@ -28,6 +28,7 @@ class Bike:
 
         self._rider_type = None # assigned at checkout
         self._from_station = None # assigned at checkout
+        self._to_station = None # assigned at checkout
 
 
     @property
@@ -37,6 +38,10 @@ class Bike:
     @property
     def bike_type(self):
         return self._bike_type
+
+    @property
+    def to_station(self):
+        return self._to_station
 
     @property
     def rider(self):
@@ -56,5 +61,10 @@ class Bike:
     def from_station(self, station_id):
         assert_id(station_id)
         self._from_station = station_id
+
+    @to_station.setter
+    def to_station(self, station_id):
+        assert_id(station_id)
+        self._to_station = station_id
 
 
