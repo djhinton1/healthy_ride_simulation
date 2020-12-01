@@ -35,7 +35,11 @@ class Simulation:
         # Has format [[stations],[weights]]
         demand_weights = get_weights(path)
         
+        # we also need transition weights so that we can determine where the rider will go after they have picked up the bike. 
+        transition_weights = get_transitions(path)
 
+        # need the user weights so that we know what type of user is moving between the stations.
+        user_weights = [['undergraduate', 'graduate', 'faculty'],[50, 30, 20]]
 
 
 
@@ -123,10 +127,22 @@ def get_weights(path):
     station_demand_weights = [[],[]]
     demand_worksheet = get_worksheet(path, 1)
     for row in range(1, demand_worksheet.nrows):
-        station_demand_weights[0].append(demand_worksheet.cell_value(row, 0))
-        station_demand_weights[1].append(demand_worksheet.cell_value(row, 2))
+        station_demand_weights[0].append(int(demand_worksheet.cell_value(row, 0)))
+        station_demand_weights[1].append(int(demand_worksheet.cell_value(row, 2)))
     return station_demand_weights
-        
+
+def get_transitions(path):
+    transition_weights = {}
+    transition_worksheet = get_worksheet(path, 2)
+    for row in range(1, transition_worksheet.nrows):
+        if not int(transition_worksheet.cell_value(row, 0)) in transition_weights:
+            transition_weights[int(transition_worksheet.cell_value(row, 0))] = [[int(transition_worksheet.cell_value(row, 1))],[int(transition_worksheet.cell_value(row, 2))]]
+        else:
+            transition_weights[int(transition_worksheet.cell_value(row, 0))][0].append(int(transition_worksheet.cell_value(row, 1)))
+
+            transition_weights[int(transition_worksheet.cell_value(row, 0))][1].append(int(transition_worksheet.cell_value(row, 2)))
+    return transition_weights
+
 
 '''
 var = average number of customers per day
