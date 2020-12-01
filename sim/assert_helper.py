@@ -47,7 +47,7 @@ def assert_rider(rider):
     --------
     rider: [str] The type of bike rider.
     """
-    if rider not in ("undergraduate", "graduate", "faculty"):
+    if rider not in ('undergraduate', 'graduate', 'faculty'):
         raise ValueError(f"{rider} is not a valid bike rider.")
 
 def assert_charge(x):
