@@ -121,8 +121,8 @@ class Station:
                 continue
 
             for trip in dock.log:
-                desc.update(trip)
-                self._log.append(desc)
+                trip.update(desc)
+                self._log.append(trip)
         return self._log
 
     @property
