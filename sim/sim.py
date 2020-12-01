@@ -18,7 +18,6 @@ class Simulation:
     def __init__(self, path):
         
         # taking the stations from the excel file and turning them into Station objects for the simulation loaded with the docks and bikes as specificed in the excel file. 
-
         stations = {}
         station_data = get_data(path)
         for element in station_data:
@@ -33,6 +32,7 @@ class Simulation:
                 description = element.get('description')
 
             )
+
         
         # need the station demand and the associated weights so that we can generate a weighted random selection as start location. 
         # Has format [[stations],[weights]]
@@ -48,7 +48,7 @@ class Simulation:
         activity_weights = [[1,2,3,4,5],[50,40,30,20,10]]
 
         
-        # Simulation
+        # SIMULATION ////////////
 
         in_transit = []
 
@@ -98,15 +98,7 @@ class Simulation:
             if stations[i].activity:
                 pprint.pprint(stations[i].log)
                 print("\n")
-
-
-
-
-
-
-
-
-
+        
 
 
 # Helper Functions
@@ -119,10 +111,11 @@ def get_data(path):
     --------
     path: [str] The file path to the desired excel worksheet. 
 
-     Returns
+    Returns
     --------
     A list of dictionaries that each contain information from one row of the excel file. 
-     """
+    """
+
     df = pd.DataFrame(columns=('longitude', 'latitude', 'status'))
     
     worksheet = get_worksheet(path, 0)
@@ -130,14 +123,14 @@ def get_data(path):
     for col in range(worksheet.ncols):
         first_row.append( worksheet.cell_value(0,col) )
 
-    # transform the workbook to a list of dictionaries
+    # transform the workbook to a list of dictionaries and build map df at the same time
     data =[]
     for row in range(1, worksheet.nrows):
         elm = {}
         for col in range(worksheet.ncols):
             elm[first_row[col]]=worksheet.cell_value(row,col)
         
-        # data frame used to create visualization
+        # data frame used to create map visualization parsed at same time the station dictionaries are being made
         df2 = pd.DataFrame([[
             elm.get('longitude'), 
             elm.get('latitude'), 
@@ -146,12 +139,14 @@ def get_data(path):
             ]], columns=('longitude', 'latitude', 'status')
         )
 
-        df = df.append(df2, ignore_index=True)
-        data.append(elm)
-    """
+        df = df.append(df2, ignore_index=True) # append map df
+        data.append(elm) # append station sictionary
+    
     # Plotting the Stations
+    # Read in the shape file for pittsburgh
     street_map = gpd.read_file('/Users/djhinton/Documents/GitHub/healthy_ride_simulation/sim/tl_2017_42003_roads/tl_2017_42003_roads.shp')
 
+    # set the projection type and generate point geometry according to longitude and latitude columns in df
     crs = {'init':'epsg:4326'}
     geometry = [Point(xy) for xy in zip(df['longitude'], df['latitude'])]
     geo_df = gpd.GeoDataFrame(
@@ -160,31 +155,60 @@ def get_data(path):
         geometry = geometry
     ) 
 
+    # creating the map over which to plot our stations
     fig, ax = plt.subplots(figsize = (15,15))
     plt.xlim(-80.01,-79.9)
     plt.ylim( 40.40,40.50)
     plt.title('Healthy Ride Active vs. Inactive Stations ', fontsize=15,fontweight='bold')
     street_map.plot(ax = ax, color = 'grey')
 
+    # these variables are used to help mitigate plotting errors when all stations are active or when all stations are inactive
     active_df = geo_df['status'] == 'active'
     inactive_df = geo_df['status'] == 'inactive'
 
+    # plot active stations
     if not geo_df[active_df].empty:
         geo_df[active_df].plot(ax = ax, markersize = 40, color = 'blue', marker = 'o', label = 'active')
 
+    # plot inactive stations
     if not geo_df[inactive_df].empty:
         geo_df[inactive_df].plot(ax = ax, markersize = 40, color = 'red', marker = '^', label = 'inactive')
     
+    # save map as html file
     mpld3.save_html(fig, 'active_stations.html')
-    """
+    
     return data
 
 def get_worksheet(path, sheet):
+    """
+    Returns a specific worksheet from the excel file provided in the path.
+
+    Params
+    --------
+    path: [str] The file path to the desired excel worksheet. 
+
+    sheet: [int >= 0] The sheet index to obtain.
+
+    Returns
+    --------
+    A indexed worksheet from a workbook provided by the path.
+    """
     workbook = xlrd.open_workbook(path, on_demand = True)
     worksheet = workbook.sheet_by_index(sheet)
     return worksheet
 
 def get_weights(path):
+    """
+    Gets the station demand from the excel worksheet provided. The worksheet contains the names and id's of stations as well as the number of trips that orginated at that station.
+
+    Params
+    --------
+    path: [str] The file path to the desired excel worksheet. 
+
+    Returns
+    --------
+    A nested list containing the station id's and their weights (number of that station's observations observations)
+    """
     station_demand_weights = [[],[]]
     demand_worksheet = get_worksheet(path, 1)
     for row in range(1, demand_worksheet.nrows):
@@ -193,6 +217,17 @@ def get_weights(path):
     return station_demand_weights
 
 def get_transitions(path):
+    """
+    Will load the weights of transitions within the network. The sheet contains one row for every unique occurance of a transition from one station to another, identifying the from_Station and the to_Station. These rows have the number of transitions along this from-to route that we have observed.
+
+    Params
+    --------
+    path: [str] The file path to the desired excel worksheet. 
+
+    Returns
+    --------
+    A dictionary where the keys are unique station id's and the value is a nested list containing the to-stations and their weights (number of observations). Has the following format { int : [[],[]] } 
+    """
     transition_weights = {}
     transition_worksheet = get_worksheet(path, 2)
     for row in range(1, transition_worksheet.nrows):
@@ -203,26 +238,3 @@ def get_transitions(path):
 
             transition_weights[int(transition_worksheet.cell_value(row, 0))][1].append(int(transition_worksheet.cell_value(row, 2)))
     return transition_weights
-
-
-'''
-var = average number of customers per day
-var = average probability of starting at a 
-var = average probability of ending up at a station (to station)
-
-need for loop where each iteration is one day
-average probability of from-station * average customer number (number of bikes from station / day)
-average probability of to-station * average number of customers
-
-^ from this, we know the number of bikes coming to and leaving from the station, we can subtract these numbers and learn the difference and compare that to the number of bikes starting at the station. 
-
-Station A:
-* start # of bikes = 5
-* # of bikes leaving the station  = 18
-* # of bikes going to the station = 12
-
-start (if negative)
-18 - 12 = 6 bikes // lost demand
-
-demand  = bikes leaving station + bikes coming to the station // which are important
-'''
