@@ -5,7 +5,10 @@ import numpy
 import pandas as pd
 import matplotlib.pyplot as plt
 from sim.station import Station
+from sim.bike import Bike
 import mpld3
+import random
+import pprint
 
 class Simulation:
     """
@@ -40,6 +43,64 @@ class Simulation:
 
         # need the user weights so that we know what type of user is moving between the stations.
         user_weights = [['undergraduate', 'graduate', 'faculty'],[50, 30, 20]]
+
+        # we need to know how many events we should have in the current iteration
+        activity_weights = [[1,2,3,4,5],[50,40,30,20,10]]
+
+        
+        # Simulation
+
+        in_transit = []
+
+        # generate how many trips we are taking in this iteration
+        num_trips = random.choices(
+            activity_weights[0], 
+            weights = activity_weights[1],
+            k = 1
+        )[0]
+
+        # generate statring locations for those trips
+        start_stations = random.choices(
+            demand_weights[0],
+            weights = demand_weights[1],
+            k = num_trips
+        )
+
+        for trip in start_stations:
+
+            # for each trip, pick a destination location
+            end_station = random.choices(
+                transition_weights[trip][0],
+                weights = transition_weights[trip][1],
+                k = 1
+            )[0]
+            
+            # for each trip, pick a user type
+            user_type = random.choices(
+                user_weights[0],
+                weights = user_weights[1],
+                k = 1
+            )[0]
+
+            # check out the bikes from the correct stations
+            bike = stations[trip].take_bike(user_type)
+            bike.to_station = end_station
+
+            # add bikes to in_transit
+            in_transit.append(bike)
+
+        for bike in in_transit:
+            # return bikes to approperate stations
+            stations[bike.to_station].dock_bike(bike)
+
+        # print out the log
+        for i in stations:
+            if stations[i].activity:
+                pprint.pprint(stations[i].log)
+                print("\n")
+
+
+
 
 
 
@@ -87,7 +148,7 @@ def get_data(path):
 
         df = df.append(df2, ignore_index=True)
         data.append(elm)
-
+    """
     # Plotting the Stations
     street_map = gpd.read_file('/Users/djhinton/Documents/GitHub/healthy_ride_simulation/sim/tl_2017_42003_roads/tl_2017_42003_roads.shp')
 
@@ -115,7 +176,7 @@ def get_data(path):
         geo_df[inactive_df].plot(ax = ax, markersize = 40, color = 'red', marker = '^', label = 'inactive')
     
     mpld3.save_html(fig, 'active_stations.html')
-
+    """
     return data
 
 def get_worksheet(path, sheet):
