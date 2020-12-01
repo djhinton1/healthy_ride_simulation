@@ -120,7 +120,7 @@ class Station:
                 continue
 
             for trip in dock.log:
-                self._log.append(trip)
+                self._log.append({'station_desc': self.description}.update(trip))
 
     @property
     def status(self):
