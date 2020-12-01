@@ -9,13 +9,15 @@ class Station:
     This class will control the behavior of the stations 
     """
 
-    def __init__(self, id, location, dock_count, status, bikes, description):
+    def __init__(self, id, longitude, latitude, dock_count, status, bikes, description):
         """
         Parameters
         ----------
         id: [int > 0] station number.
 
-        location: [tuple] contains map coordinates for the stations.
+        longitude: [double] contains map longitude coordinate for the station.
+
+        latitude: [double] contains map latitude coordinates for the station.
 
         dock_count: [int > 0] number of docks at the station.
 
@@ -29,8 +31,8 @@ class Station:
         assert_id(id)
         self._id = id
 
-        assert_location(location)
-        self._location = location
+        self._longitude = longitude
+        self._latitude = latitude
 
         assert_id(dock_count)
         self._dock_count = dock_count
@@ -58,6 +60,14 @@ class Station:
     @property
     def id(self):
         return self._id
+
+    @property
+    def longitude(self):
+        return self._longitude
+
+    @property
+    def latitude(self):
+        return self._latitude
     
     @property
     def location(self):
