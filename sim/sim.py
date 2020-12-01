@@ -96,8 +96,13 @@ class Simulation:
         # print out the log
         for i in stations:
             if stations[i].activity:
-                pprint.pprint(stations[i].log)
-                print("\n")
+                print("\nLOG FOR " + str(stations[i].id))
+                print("---------------------")
+                for j in stations[i].log:
+                    pprint.pprint(j)
+                    print("\n")
+                
+              
         
 
 
@@ -141,7 +146,7 @@ def get_data(path):
 
         df = df.append(df2, ignore_index=True) # append map df
         data.append(elm) # append station sictionary
-    
+    '''
     # Plotting the Stations
     # Read in the shape file for pittsburgh
     street_map = gpd.read_file('/Users/djhinton/Documents/GitHub/healthy_ride_simulation/sim/tl_2017_42003_roads/tl_2017_42003_roads.shp')
@@ -176,7 +181,7 @@ def get_data(path):
     
     # save map as html file
     mpld3.save_html(fig, 'active_stations.html')
-    
+    '''
     return data
 
 def get_worksheet(path, sheet):
